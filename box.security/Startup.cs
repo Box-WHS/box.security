@@ -23,9 +23,12 @@ namespace box.security
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Configure IdentityServer 4
             services.AddIdentityServer()
-                .AddDeveloperSigningCredential();
-            services.AddMvc();
+                .AddDeveloperSigningCredential()
+                .AddInMemoryApiResources(Config.GetApiResources())
+                .AddInMemoryClients(Config.GetClients());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,8 +38,9 @@ namespace box.security
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            //Start IdentityServer 4
             app.UseIdentityServer();
-            app.UseMvc();
         }
     }
 }
