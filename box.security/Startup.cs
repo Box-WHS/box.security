@@ -69,7 +69,7 @@ namespace box.security
             }
 
             //Initialize Database for IdentityServer 4
-            InitializeDatabase(app);
+            InitializeDatabase(app);                          //TODO: Delete line at deploy, uncomment it, when the MySQL-Server changes
 
             //Start IdentityServer 4
             app.UseIdentityServer();
@@ -84,11 +84,9 @@ namespace box.security
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.EnsureCreated();
                 serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
 
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                context.Database.EnsureCreated();
                 context.Database.Migrate();
                 if (!context.Clients.Any())
                 {
