@@ -41,14 +41,14 @@ namespace Box.Security.IdentityServer
                     ClientName = "Box MVC-Client",
                     AllowedGrantTypes = GrantTypes.HybridAndClientCredentials,
 
-                    RequireConsent = false,
+                    RequireConsent = true,
                     ClientSecrets =
                     {
                         new Secret("box123".Sha256())
                     },
 
-                    RedirectUris = { "http://localhost:4711/signin-oidc" },
-                    PostLogoutRedirectUris = { "http://localhost:4711/signout-callback-oidc" },
+                    RedirectUris = { "http://localhost:5002/signin-oidc" },
+                    PostLogoutRedirectUris = { "http://localhost:5002/signout-callback-oidc" },
 
                     AllowedScopes =
                     {
