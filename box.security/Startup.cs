@@ -18,8 +18,8 @@ namespace Box.Security
                 .AddDeveloperSigningCredential()
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
-                .AddTestUsers(Config.GetTestUsers());
-                //.AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
+                .AddTestUsers(Config.GetTestUsers())
+                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
             services.AddMvc();
         }
 
