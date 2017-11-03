@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Box.Security.Data;
+﻿using Box.Security.Data;
 using Box.Security.Validation;
-using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Box.Security
@@ -24,8 +18,9 @@ namespace Box.Security
                 .AddDeveloperSigningCredential()
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
-                .AddTestUsers(Config.GetTestUsers())
-                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
+                .AddTestUsers(Config.GetTestUsers());
+                //.AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +38,8 @@ namespace Box.Security
             }
 
             app.UseIdentityServer();
+            app.UseMvc();
+
         }
     }
 }
