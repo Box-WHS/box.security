@@ -1,4 +1,5 @@
 ﻿using Box.Security.Data;
+using Box.Security.Services;
 using Box.Security.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +20,7 @@ namespace Box.Security
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
                 .AddTestUsers(Config.GetTestUsers())
+                .AddProfileService<ProfileService>()
                 .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
             services.AddMvc();
         }

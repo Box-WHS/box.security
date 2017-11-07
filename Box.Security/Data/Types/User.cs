@@ -12,5 +12,6 @@ namespace Box.Security.Data.Types
         public string LastName { get; set; }
         public string Phone { get; set; }
         public Role Role { get; set; }
+        public bool Enabled { get; set; }
     }
 }
