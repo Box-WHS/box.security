@@ -26,7 +26,7 @@ namespace Box.Security.Controllers
         /// </summary>
         /// <returns>HTTP-Response Code</returns>
         [HttpPost]
-        public async Task<IActionResult> RegisterUser([FromBody] UserData user, [FromBody] string captcha)
+        public async Task<IActionResult> RegisterUser([FromBody] UserData user)
         {
             if (!ModelState.IsValid)
             {
@@ -34,6 +34,14 @@ namespace Box.Security.Controllers
             }
 
             user.Password = user.Password.Sha256();
+            if (await DataContext.Users
+                .Where(usr =>
+                    usr.UserName.ToLower().Equals(user.UserName.ToLower()) ||
+                    usr.Email.ToLower().Equals(user.Email.ToLower()))
+                .AnyAsync())
+            {
+                return BadRequest("Another user with this userName or email already exists.");
+            }
             await DataContext.Users.AddAsync(new User
             {
                 FirstName = user.FirstName,
@@ -44,7 +52,8 @@ namespace Box.Security.Controllers
 
             });
             await DataContext.SaveChangesAsync();
-            return NoContent();
+
+            return Ok();
         }
     }
 }
