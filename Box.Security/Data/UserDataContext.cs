@@ -44,7 +44,6 @@ namespace Box.Security.Data
             modelBuilder.Entity<User>()
                 .HasOne(user => user.Role);
 
-
             modelBuilder.Entity<Role>()
                 .HasKey(role => role.Id);
             modelBuilder.Entity<Role>()

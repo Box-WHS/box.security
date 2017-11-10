@@ -14,7 +14,7 @@ namespace Box.Security
         {
             return new List<ApiResource>()
             {
-                new ApiResource("box-security-api", "Box Security API")
+                new ApiResource("box-api", "Box API")
             };
         }
 
@@ -30,7 +30,7 @@ namespace Box.Security
                     {
                         new Secret("secret".Sha256())
                     },
-                    AllowedScopes = { "box-security-api" }
+                    AllowedScopes = { "box-api" }
                 },
                 new Client()
                 {

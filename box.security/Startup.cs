@@ -4,6 +4,7 @@ using Box.Security.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Box.Security
 {
@@ -15,6 +16,10 @@ namespace Box.Security
         {
             services.AddDbContext<UserDataContext>();
 
+            services.AddSwaggerGen(option =>
+            {
+                option.SwaggerDoc("v1", new Info {Title = "Box.Security", Version = "v1"});
+            });
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryApiResources(Config.GetApiResources())
@@ -40,6 +45,11 @@ namespace Box.Security
             }
 
             app.UseIdentityServer();
+            app.UseSwagger();
+            app.UseSwaggerUI(option =>
+            {
+                option.SwaggerEndpoint("/swagger/v1/swagger.json", "Box.Security V1");
+            });
             app.UseMvc();
 
         }
