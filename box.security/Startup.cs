@@ -39,7 +39,7 @@ namespace Box.Security
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -50,7 +50,7 @@ namespace Box.Security
             {
                 var context = serviceScope.ServiceProvider.GetService<UserDataContext>();
                 context.Database.EnsureCreated();
-                context.InitDb().GetAwaiter();
+                await context.InitDb();
             }
 
             app.UseIdentityServer();

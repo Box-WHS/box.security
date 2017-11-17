@@ -88,6 +88,9 @@ namespace Box.Security.Data
             await AddAuthorization(new Authorization{ Name = "Create Boxes in API", SysName = "api:create:boxes", Description = "Permission to create boxes in API"});
             await AddAuthorization(new Authorization{ Name = "Edit Boxes from API", SysName = "api:edit:boxes", Description = "Permission to edit boxes in API"});
             #endregion
+
+            await SaveChangesAsync();
+            
             #region Init Roles
             await AddRole(new Role{ Description = "Role for normal users", Name = "Normal User", SysName = "role:normal"}, 
                 await Authorizations.Where(auth => auth.SysName.EndsWith("boxes")).ToListAsync());
@@ -99,8 +102,7 @@ namespace Box.Security.Data
         private async Task AddAuthorization(Authorization authorization)
         {
             if (!await Authorizations
-                .Where(auth => auth.SysName == authorization.SysName)
-                .AnyAsync())
+                .AnyAsync(auth => auth.SysName == authorization.SysName))
             {
                 await Authorizations.AddAsync(authorization);
                 await SaveChangesAsync();
@@ -110,13 +112,12 @@ namespace Box.Security.Data
         private async Task AddRole(Role role, IEnumerable<Authorization> authorizations)
         {
             if (!await Roles
-                .Where(r => r.SysName == role.SysName)
-                .AnyAsync())
+                .AnyAsync(r => r.SysName == role.SysName))
             {
                 foreach (var auth in authorizations)
                 {
                     await AuthorizationRoles.AddAsync(new AuthorizationRole{ Authorization = auth, Role = role});
-                    await SaveChangesAsync();
+                    
                 }
                 await Roles.AddAsync(role);
                 await SaveChangesAsync();
