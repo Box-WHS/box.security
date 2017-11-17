@@ -31,12 +31,14 @@ namespace Box.Security.Services
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var userId = context.Subject.GetSubjectId();
-            var dbUser = await DataContext.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
+            var dbUser = await DataContext.Users
+                .Where(user => user.Id == userId)
+                .FirstOrDefaultAsync();
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Subject, dbUser.Id));
         }
 
         /// <summary>
-        /// Override the IsActiveAsync-Method to prevent "User with id { xxxx } is disabled
+        /// Override the IsActiveAsync-Method to prevent "User with id { xxxx } is not enabled
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>

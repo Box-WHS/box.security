@@ -12,7 +12,7 @@ namespace Box.Security
     {
         public static List<ApiResource> GetApiResources()
         {
-            return new List<ApiResource>()
+            return new List<ApiResource>
             {
                 new ApiResource("box-api", "Box API")
             };
@@ -20,9 +20,9 @@ namespace Box.Security
 
         public static List<Client> GetClients()
         {
-            return new List<Client>()
+            return new List<Client>
             {
-                new Client()
+                new Client
                 {
                     ClientId = "box",
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
@@ -47,7 +47,7 @@ namespace Box.Security
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "box-security-api"
+                        "box-api"
                     }
 
                 }

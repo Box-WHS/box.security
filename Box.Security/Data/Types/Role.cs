@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Box.Security.Data.Types.Interfaces;
 
 namespace Box.Security.Data.Types
 {
-    public class Role : IdentityRole
+    public class Role : IRole
     {
-        public IEnumerable<Policy> Policies { get; set; }
+        public int RoleId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public IEnumerable<AuthorizationRole> Authorizations { get; set; }
+        public string SysName { get; set; }
     }
 }

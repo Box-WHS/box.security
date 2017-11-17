@@ -50,6 +50,7 @@ namespace Box.Security
             {
                 var context = serviceScope.ServiceProvider.GetService<UserDataContext>();
                 context.Database.EnsureCreated();
+                context.InitDb().GetAwaiter();
             }
 
             app.UseIdentityServer();

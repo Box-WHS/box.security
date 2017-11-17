@@ -32,7 +32,7 @@ namespace Box.Security.Validation
 
             if (dbUser == null)
             {
-                context.Result.ErrorDescription = $"The user does not exist.";
+                context.Result.ErrorDescription = "The user does not exist.";
                 context.Result.IsError = true;
                 context.Result.Error = "User does not exist.";
                 return;
@@ -74,8 +74,7 @@ namespace Box.Security.Validation
                 new Claim("user_id", user.Id),
                 new Claim(JwtClaimTypes.GivenName, user.FirstName),
                 new Claim(JwtClaimTypes.FamilyName, user.LastName),
-                new Claim(JwtClaimTypes.Email, user.Email),
-                new Claim(JwtClaimTypes.Role, JsonConvert.SerializeObject(user.Role))
+                new Claim(JwtClaimTypes.Email, user.Email)
             };
             return claims;
         }
