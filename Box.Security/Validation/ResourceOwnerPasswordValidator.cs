@@ -30,6 +30,13 @@ namespace Box.Security.Validation
                 .Where(user => user.UserName.ToLower() == context.UserName.ToLower() || user.Email.ToLower() == context.UserName.ToLower())
                 .FirstOrDefaultAsync();
 
+            if (dbUser == null)
+            {
+                context.Result.ErrorDescription = $"The user does not exist.";
+                context.Result.IsError = true;
+                context.Result.Error = "User does not exist.";
+                return;
+            }
             if (!dbUser.Enabled)
             {
                 dbUser.AccessFailedCount++;

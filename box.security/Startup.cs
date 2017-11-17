@@ -1,4 +1,5 @@
-﻿using Box.Security.Data;
+﻿using System.Collections.Immutable;
+using Box.Security.Data;
 using Box.Security.Services;
 using Box.Security.Validation;
 using Microsoft.AspNetCore.Builder;
@@ -27,7 +28,12 @@ namespace Box.Security
                 .AddTestUsers(Config.GetTestUsers())
                 .AddProfileService<ProfileService>()
                 .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
-            services.AddCors();
+            services.AddCors(options => options.AddPolicy("LoginPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
             services.AddMvc();
             
         }
@@ -52,12 +58,7 @@ namespace Box.Security
             {
                 option.SwaggerEndpoint("/swagger/v1/swagger.json", "Box.Security V1");
             });
-            app.UseCors(options =>
-            {
-                options.AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowAnyOrigin();
-            });
+            app.UseCors("LoginPolicy");
             app.UseMvc();
 
         }
