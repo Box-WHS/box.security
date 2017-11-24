@@ -117,7 +117,6 @@ namespace Box.Security.Data
                 foreach (var auth in authorizations)
                 {
                     await AuthorizationRoles.AddAsync(new AuthorizationRole{ Authorization = auth, Role = role});
-                    
                 }
                 await Roles.AddAsync(role);
                 await SaveChangesAsync();

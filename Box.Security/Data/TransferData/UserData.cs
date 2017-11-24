@@ -30,6 +30,7 @@ namespace Box.Security.Data.TransferData
         [Required]
         [StringLength(255)]
         public string UserName { get; set; }
+        
         [Required]
         public string Captcha { get; set; }
     }

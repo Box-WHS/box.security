@@ -4,7 +4,10 @@ using Box.Security.Services;
 using Box.Security.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Box.Security
@@ -34,12 +37,16 @@ namespace Box.Security
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
-            services.AddMvc();
             
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -50,7 +57,7 @@ namespace Box.Security
             {
                 var context = serviceScope.ServiceProvider.GetService<UserDataContext>();
                 context.Database.EnsureCreated();
-                await context.InitDb();
+                context.InitDb().GetAwaiter().GetResult();
             }
 
             app.UseIdentityServer();
@@ -60,8 +67,7 @@ namespace Box.Security
                 option.SwaggerEndpoint("/swagger/v1/swagger.json", "Box.Security V1");
             });
             app.UseCors("LoginPolicy");
-            app.UseMvc();
-
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

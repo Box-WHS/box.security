@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Box.Security.Data;
 using Box.Security.Data.TransferData;
@@ -14,7 +12,7 @@ namespace Box.Security.Controllers
     [Route("register")]
     public class RegisterController : Controller
     {
-        UserDataContext DataContext { get; }
+        private UserDataContext DataContext { get; }
 
         public RegisterController(UserDataContext dataContext)
         {
@@ -22,7 +20,7 @@ namespace Box.Security.Controllers
         }
 
         /// <summary>
-        /// Registers a new user, expects password to be a SHA256-Hash.
+        /// Registers a new user
         /// </summary>
         /// <returns>HTTP-Response Code</returns>
         [HttpPost]
@@ -32,8 +30,6 @@ namespace Box.Security.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            user.Password = user.Password.Sha256();
             if (await DataContext.Users
                 .Where(usr =>
                     usr.UserName.ToLower().Equals(user.UserName.ToLower()) ||
@@ -42,18 +38,32 @@ namespace Box.Security.Controllers
             {
                 return BadRequest("Another user with this userName or email already exists.");
             }
-            await DataContext.Users.AddAsync(new User
+
+            var userDto = (await DataContext.Users.AddAsync(new User
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                PasswordHash = user.Password,
-                UserName = user.UserName,
+                PasswordHash = user.Password.Sha256(),
+                UserName = user.UserName
+            })).Entity;
 
-            });
+            await DataContext.AuthorizationRoles
+                .Where(authRole => authRole.Role.SysName.Equals("role:normal"))
+                .Include(authRole => authRole.Authorization)
+                .Include(authRole => authRole.Role)
+                .ForEachAsync(authRole =>
+                {
+                    DataContext.AuthorizationUsers.Add(new AuthorizationUser
+                    {
+                        Authorization = authRole.Authorization,
+                        User = userDto
+                    });
+                });
+            
             await DataContext.SaveChangesAsync();
 
-            return Ok();
+            return Ok(userDto);
         }
     }
 }
