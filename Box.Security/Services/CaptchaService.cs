@@ -19,6 +19,8 @@ namespace Box.Security.Services
         public CaptchaService(IConfiguration config)
         {
             Configuration = config;
+            Secret = Configuration["CaptchaSecret"];
+            Api = Configuration["CaptchaApi"];
         }
         
         ///<inheritdoc />
@@ -40,7 +42,7 @@ namespace Box.Security.Services
                 };
                 var payloadContent = new FormUrlEncodedContent(payload);
                 captchaResponse = JsonConvert.DeserializeObject<CaptchaResponse>(
-                    await (await http.PostAsync(Configuration["CaptchaApi"], payloadContent)).Content
+                    await (await http.PostAsync(Api, payloadContent)).Content
                         .ReadAsStringAsync());
             }
             return captchaResponse;
