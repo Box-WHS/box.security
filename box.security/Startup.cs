@@ -37,6 +37,8 @@ namespace Box.Security
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
+
+            services.AddScoped<ICaptchaService, CaptchaService>();
             
             services.AddMvc()
                 .AddJsonOptions(options =>
@@ -66,6 +68,7 @@ namespace Box.Security
             {
                 option.SwaggerEndpoint("/swagger/v1/swagger.json", "Box.Security V1");
             });
+           
             app.UseCors("LoginPolicy");
             app.UseMvcWithDefaultRoute();
         }

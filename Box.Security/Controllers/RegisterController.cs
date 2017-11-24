@@ -3,9 +3,14 @@ using System.Threading.Tasks;
 using Box.Security.Data;
 using Box.Security.Data.TransferData;
 using Box.Security.Data.Types;
+using Box.Security.Services;
+using Box.Security.Services.Types;
 using IdentityServer4.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Box.Security.Controllers
 {
@@ -13,10 +18,14 @@ namespace Box.Security.Controllers
     public class RegisterController : Controller
     {
         private UserDataContext DataContext { get; }
+        private IConfiguration Configuration { get; }
+        private ICaptchaService CaptchaService { get; }
 
-        public RegisterController(UserDataContext dataContext)
+        public RegisterController(UserDataContext dataContext, IConfiguration config, ICaptchaService captchaService)
         {
             DataContext = dataContext;
+            Configuration = config;
+            CaptchaService = captchaService;
         }
 
         /// <summary>
@@ -26,10 +35,19 @@ namespace Box.Security.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterUser([FromBody] UserData user)
         {
+            CaptchaResponse captchaResponse;
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            if (!(captchaResponse = await CaptchaService.CaptchaSolvedAsync(user.Captcha)).Success)
+            {
+                return BadRequest("The reCaptcha is not solved! Details: " +
+                                  JsonConvert.SerializeObject(captchaResponse.ErrorCodes));
+            }
+            
             if (await DataContext.Users
                 .Where(usr =>
                     usr.UserName.ToLower().Equals(user.UserName.ToLower()) ||
