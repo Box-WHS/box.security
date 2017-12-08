@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
@@ -14,7 +16,14 @@ namespace Box.Security
         {
             return new List<ApiResource>
             {
-                new ApiResource("box-api", "Box API")
+                new ApiResource("box-api", "Box API", new []
+                {
+                    JwtClaimTypes.Email,
+                    JwtClaimTypes.GivenName,
+                    JwtClaimTypes.FamilyName,
+                    JwtClaimTypes.Scope,
+                    JwtClaimTypes.Role
+                })
             };
         }
 
@@ -26,11 +35,13 @@ namespace Box.Security
                 {
                     ClientId = "box",
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    ClientSecrets = new List<Secret>()
+                    ClientSecrets = new List<Secret>
                     {
                         new Secret("secret".Sha256())
                     },
-                    AllowedScopes = { "box-api" }
+                    AllowedScopes = { 
+                        "box-api",
+                    }
                 },
                 new Client()
                 {

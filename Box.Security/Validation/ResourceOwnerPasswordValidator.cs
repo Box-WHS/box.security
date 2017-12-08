@@ -8,7 +8,6 @@ using Box.Security.Data.Types;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -57,7 +56,9 @@ namespace Box.Security.Validation
                 context.Result = new GrantValidationResult(
                     subject: dbUser.Id,
                     authenticationMethod: "custom",
-                    claims: await GetUserClaimsAsync(dbUser)); 
+                    claims: await GetUserClaimsAsync(dbUser));
+                ((ClaimsIdentity)context.Result.Subject.Identity).AddClaim(new Claim("role", "trololol"));
+
             }
             else
             {
@@ -69,6 +70,10 @@ namespace Box.Security.Validation
 
         private async Task<IEnumerable<Claim>> GetUserClaimsAsync(User user)
         {
+            var __authsTask = DataContext.AuthorizationUsers
+                .Where(authUser => authUser.User.Id == user.Id)
+                .Select(auth => auth.Authorization)
+                .ToListAsync();
             var claims = new List<Claim>
             {
                 new Claim("user_id", user.Id),
@@ -76,6 +81,13 @@ namespace Box.Security.Validation
                 new Claim(JwtClaimTypes.FamilyName, user.LastName),
                 new Claim(JwtClaimTypes.Email, user.Email)
             };
+            var authList = await __authsTask;
+            foreach (var authorization in authList)
+            {
+                claims.Add(new Claim(JwtClaimTypes.Scope, authorization.SysName));
+            }
+            //Just for test
+            claims.Add(new Claim(JwtClaimTypes.Role, "hier könnte Ihre werbung stehen!"));
             return claims;
         }
     }

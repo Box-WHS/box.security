@@ -35,6 +35,9 @@ namespace Box.Security.Services
                 .Where(user => user.Id == userId)
                 .FirstOrDefaultAsync();
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Subject, dbUser.Id));
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.Email, dbUser.Email));
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.GivenName, dbUser.FirstName));
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.FamilyName, dbUser.LastName));
         }
 
         /// <summary>
