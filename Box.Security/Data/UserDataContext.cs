@@ -76,21 +76,24 @@ namespace Box.Security.Data
         
         public async Task InitDb()
         {
-            var roles = new List<Role>
+            if (!Roles.Any())
             {
-                new Role()
+                var roles = new List<Role>
                 {
-                    DisplayName = "Normaler Benutzer",
-                    Name = "user"
-                },
-                new Role()
-                {
-                    DisplayName = "Administrativer Benutzer",
-                    Name = "admin"
-                }
-            };
-            await AddRangeAsync(roles);
-            await SaveChangesAsync();
+                    new Role()
+                    {
+                        DisplayName = "Normaler Benutzer",
+                        Name = "user"
+                    },
+                    new Role()
+                    {
+                        DisplayName = "Administrativer Benutzer",
+                        Name = "admin"
+                    }
+                };
+                await AddRangeAsync(roles);
+                await SaveChangesAsync();
+            }
         }
 
         public override EntityEntry Add(object entity)
@@ -112,13 +115,41 @@ namespace Box.Security.Data
             User user;
             if ((user = entity as User) != null)
             {
-                UserRoles.Add(new UserRole
+                await UserRoles.AddAsync(new UserRole
                 {
                     Role = await Roles.FirstOrDefaultAsync(role => role.Name.Equals("user"), cancellationToken),
                     User = user
-                });
+                }, cancellationToken);
             }
             return await base.AddAsync(entity, cancellationToken);
+        }
+
+        public override async Task<EntityEntry<TEntity>> AddAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            User user;
+            if ((user = entity as User) != null)
+            {
+                await UserRoles.AddAsync(new UserRole
+                {
+                    Role = await Roles.FirstOrDefaultAsync(role => role.Name.Equals("user"), cancellationToken),
+                    User = user
+                }, cancellationToken);
+            }
+            return await base.AddAsync(entity, cancellationToken);
+        }
+
+        public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
+        {
+            User user;
+            if ((user = entity as User) != null)
+            {
+                UserRoles.Add(new UserRole
+                {
+                    Role = Roles.FirstOrDefault(role => role.Name.Equals("user")),
+                    User = user
+                });
+            }
+            return base.Add(entity);
         }
     }
 }

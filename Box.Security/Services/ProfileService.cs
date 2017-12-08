@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Box.Security.Data;
+using Box.Security.Data.Types;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -34,17 +35,19 @@ namespace Box.Security.Services
             var dbUser = await DataContext.Users
                 .Where(user => user.Id == userId)
                 .FirstOrDefaultAsync();
+            await DataContext.UserRoles
+                .Where(userRole => userRole.User.Id == dbUser.Id)
+                .Include(userRole => userRole.User)
+                .Select(userRole => userRole.Role)
+                .ForEachAsync(role =>
+                {
+                    context.IssuedClaims.Add(new Claim(JwtClaimTypes.Role, role.Name));
+                });
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Subject, dbUser.Id));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Email, dbUser.Email));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.GivenName, dbUser.FirstName));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.FamilyName, dbUser.LastName));
-            context.IssuedClaims.Add(new Claim(JwtClaimTypes.Role, "Marcel stinkt"));
             
-            context.IssuedClaims.Add(new Claim(JwtClaimTypes.Scope, "deinemama"));
-            foreach (var subjectClaim in context.Subject.Claims)
-            {
-                Console.WriteLine(subjectClaim.Value);
-            }
         }
 
         /// <summary>
