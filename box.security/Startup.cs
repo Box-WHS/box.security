@@ -31,6 +31,7 @@ namespace Box.Security
                 .AddTestUsers(Config.GetTestUsers())
                 .AddProfileService<ProfileService>()
                 .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
+            
             services.AddCors(options => options.AddPolicy("LoginPolicy", builder =>
             {
                 builder.AllowAnyOrigin()

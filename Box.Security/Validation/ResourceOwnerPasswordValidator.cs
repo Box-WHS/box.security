@@ -38,7 +38,6 @@ namespace Box.Security.Validation
             }
             if (!dbUser.Enabled)
             {
-                dbUser.AccessFailedCount++;
                 context.Result.ErrorDescription = $"The user { dbUser.UserName } is not enabled.";
                 context.Result.IsError = true;
                 context.Result.Error = "User not enabled.";
@@ -55,7 +54,7 @@ namespace Box.Security.Validation
                 dbUser.AccessFailedCount = 0;
                 context.Result = new GrantValidationResult(
                     subject: dbUser.Id,
-                    authenticationMethod: "custom",
+                    authenticationMethod: "password",
                     claims: await GetUserClaimsAsync(dbUser));
             }
             else
