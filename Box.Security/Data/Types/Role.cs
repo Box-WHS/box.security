@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using Box.Security.Data.Types.Interfaces;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Box.Security.Data.Types
 {
-    public class Role : IRole
+    public class Role
     {
-        public int RoleId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
-        public IEnumerable<AuthorizationRole> Authorizations { get; set; }
-        public string SysName { get; set; }
+        public string DisplayName { get; set; }
+        public IEnumerable<UserRole> UserRoles { get; set; }
     }
 }

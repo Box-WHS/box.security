@@ -13,6 +13,6 @@ namespace Box.Security.Data.Types
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool Enabled { get; set; }
-        public IEnumerable<AuthorizationUser> Authorizations { get; set; }
+        public IEnumerable<UserRole> UserRoles { get; set; }
     }
 }

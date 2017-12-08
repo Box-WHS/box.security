@@ -38,6 +38,13 @@ namespace Box.Security.Services
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Email, dbUser.Email));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.GivenName, dbUser.FirstName));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.FamilyName, dbUser.LastName));
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.Role, "Marcel stinkt"));
+            
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.Scope, "deinemama"));
+            foreach (var subjectClaim in context.Subject.Claims)
+            {
+                Console.WriteLine(subjectClaim.Value);
+            }
         }
 
         /// <summary>

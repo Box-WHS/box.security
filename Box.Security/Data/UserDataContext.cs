@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Box.Security.Data.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 
 namespace Box.Security.Data
@@ -15,10 +17,8 @@ namespace Box.Security.Data
         private IConfiguration Configuration { get; }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Authorization> Authorizations { get; set; }
-        public DbSet<AuthorizationUser> AuthorizationUsers { get; set; }
-        public DbSet<AuthorizationRole> AuthorizationRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         public UserDataContext(IConfiguration configuration, DbContextOptions<UserDataContext> options)
         {
@@ -48,32 +48,25 @@ namespace Box.Security.Data
                 .Property(user => user.UserName)
                 .IsRequired();
             modelBuilder.Entity<User>()
-                .HasMany(user => user.Authorizations);
+                .HasMany(user => user.UserRoles)
+                .WithOne(userRole => userRole.User);
 
-            modelBuilder.Entity<AuthorizationUser>()
-                .HasKey(authUser => authUser.Id);
-
-            modelBuilder.Entity<AuthorizationRole>()
-                .HasKey(authRole => authRole.Id);
-
-            modelBuilder.Entity<Authorization>()
-                .HasKey(auth => auth.AuthorizationId);
-            modelBuilder.Entity<Authorization>()
-                .HasMany(auth => auth.AuthorizationUsers)
-                .WithOne(authUser => authUser.Authorization);
-            modelBuilder.Entity<Authorization>()
-                .HasMany(auth => auth.AuthorizationRoles)
-                .WithOne(authRole => authRole.Authorization);
-            modelBuilder.Entity<Authorization>()
-                .HasIndex(auth => auth.SysName)
+            modelBuilder.Entity<Role>()
+                .HasKey(role => role.Id);
+            modelBuilder.Entity<Role>()
+                .HasIndex(role => role.Name)
                 .IsUnique();
+            modelBuilder.Entity<Role>()
+                .HasIndex(role => role.DisplayName)
+                .IsUnique();
+            modelBuilder.Entity<Role>()
+                .HasMany(role => role.UserRoles)
+                .WithOne(userRole => userRole.Role);
 
-            modelBuilder.Entity<Role>()
-                .HasKey(role => role.RoleId);
-            modelBuilder.Entity<Role>()
-                .HasMany(role => role.Authorizations);
-            modelBuilder.Entity<Role>()
-                .HasIndex(role => role.SysName);
+            modelBuilder.Entity<UserRole>()
+                .HasKey(userRole => userRole.Id);
+            
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
@@ -83,44 +76,49 @@ namespace Box.Security.Data
         
         public async Task InitDb()
         {
-            #region Init Authorizations
-            await AddAuthorization(new Authorization{ Name = "Read Boxes from API", SysName = "api:read:boxes", Description = "Permission to read boxes from API"});
-            await AddAuthorization(new Authorization{ Name = "Create Boxes in API", SysName = "api:create:boxes", Description = "Permission to create boxes in API"});
-            await AddAuthorization(new Authorization{ Name = "Edit Boxes from API", SysName = "api:edit:boxes", Description = "Permission to edit boxes in API"});
-            #endregion
-
-            await SaveChangesAsync();
-            
-            #region Init Roles
-            await AddRole(new Role{ Description = "Role for normal users", Name = "Normal User", SysName = "role:normal"}, 
-                await Authorizations.Where(auth => auth.SysName.EndsWith("boxes")).ToListAsync());
-            await AddRole(new Role { Description = "Role for administrative users", Name = "Admin", SysName = "role:admin"},
-                await Authorizations.ToListAsync());
-            #endregion
-        }
-
-        private async Task AddAuthorization(Authorization authorization)
-        {
-            if (!await Authorizations
-                .AnyAsync(auth => auth.SysName == authorization.SysName))
+            var roles = new List<Role>
             {
-                await Authorizations.AddAsync(authorization);
-                await SaveChangesAsync();
-            }
-        }
-
-        private async Task AddRole(Role role, IEnumerable<Authorization> authorizations)
-        {
-            if (!await Roles
-                .AnyAsync(r => r.SysName == role.SysName))
-            {
-                foreach (var auth in authorizations)
+                new Role()
                 {
-                    await AuthorizationRoles.AddAsync(new AuthorizationRole{ Authorization = auth, Role = role});
+                    DisplayName = "Normaler Benutzer",
+                    Name = "user"
+                },
+                new Role()
+                {
+                    DisplayName = "Administrativer Benutzer",
+                    Name = "admin"
                 }
-                await Roles.AddAsync(role);
-                await SaveChangesAsync();
+            };
+            await AddRangeAsync(roles);
+            await SaveChangesAsync();
+        }
+
+        public override EntityEntry Add(object entity)
+        {
+            User user;
+            if ((user = entity as User) != null)
+            {
+                UserRoles.Add(new UserRole
+                {
+                    Role = Roles.FirstOrDefault(role => role.Name.Equals("user")),
+                    User = user
+                });
             }
+            return base.Add(entity);
+        }
+
+        public override async Task<EntityEntry> AddAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            User user;
+            if ((user = entity as User) != null)
+            {
+                UserRoles.Add(new UserRole
+                {
+                    Role = await Roles.FirstOrDefaultAsync(role => role.Name.Equals("user"), cancellationToken),
+                    User = user
+                });
+            }
+            return await base.AddAsync(entity, cancellationToken);
         }
     }
 }

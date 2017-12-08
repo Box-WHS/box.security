@@ -50,15 +50,13 @@ namespace Box.Security.Validation
                 context.Result.ErrorDescription = $"The user { dbUser.UserName } has been disabled due to 5 invalid login attempts.";
                 context.Result.Error = "User disabled";
             }
-            else if (dbUser?.PasswordHash == context.Password.Sha256())
+            else if (dbUser.PasswordHash == context.Password.Sha256())
             {
                 dbUser.AccessFailedCount = 0;
                 context.Result = new GrantValidationResult(
                     subject: dbUser.Id,
                     authenticationMethod: "custom",
                     claims: await GetUserClaimsAsync(dbUser));
-                ((ClaimsIdentity)context.Result.Subject.Identity).AddClaim(new Claim("role", "trololol"));
-
             }
             else
             {
@@ -70,10 +68,6 @@ namespace Box.Security.Validation
 
         private async Task<IEnumerable<Claim>> GetUserClaimsAsync(User user)
         {
-            var __authsTask = DataContext.AuthorizationUsers
-                .Where(authUser => authUser.User.Id == user.Id)
-                .Select(auth => auth.Authorization)
-                .ToListAsync();
             var claims = new List<Claim>
             {
                 new Claim("user_id", user.Id),
@@ -81,13 +75,6 @@ namespace Box.Security.Validation
                 new Claim(JwtClaimTypes.FamilyName, user.LastName),
                 new Claim(JwtClaimTypes.Email, user.Email)
             };
-            var authList = await __authsTask;
-            foreach (var authorization in authList)
-            {
-                claims.Add(new Claim(JwtClaimTypes.Scope, authorization.SysName));
-            }
-            //Just for test
-            claims.Add(new Claim(JwtClaimTypes.Role, "hier könnte Ihre werbung stehen!"));
             return claims;
         }
     }

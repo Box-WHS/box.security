@@ -65,19 +65,6 @@ namespace Box.Security.Controllers
                 PasswordHash = user.Password.Sha256(),
                 UserName = user.UserName
             })).Entity;
-
-            await DataContext.AuthorizationRoles
-                .Where(authRole => authRole.Role.SysName.Equals("role:normal"))
-                .Include(authRole => authRole.Authorization)
-                .Include(authRole => authRole.Role)
-                .ForEachAsync(authRole =>
-                {
-                    DataContext.AuthorizationUsers.Add(new AuthorizationUser
-                    {
-                        Authorization = authRole.Authorization,
-                        User = userDto
-                    });
-                });
             
             await DataContext.SaveChangesAsync();
 

@@ -16,7 +16,7 @@ namespace Box.Security
         {
             return new List<ApiResource>
             {
-                new ApiResource("box-api", "Box API", new []
+                new ApiResource("box-api", "Box API", new[]
                 {
                     JwtClaimTypes.Email,
                     JwtClaimTypes.GivenName,
@@ -40,7 +40,7 @@ namespace Box.Security
                         new Secret("secret".Sha256())
                     },
                     AllowedScopes = { 
-                        "box-api",
+                        "box-api"
                     }
                 },
                 new Client()
