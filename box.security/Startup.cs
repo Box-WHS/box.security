@@ -1,25 +1,27 @@
-﻿using System.Collections.Immutable;
-using Box.Security.Data;
+﻿using Box.Security.Data;
 using Box.Security.Services;
 using Box.Security.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Cors.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Steeltoe.Discovery.Client;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Box.Security
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; set; }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<UserDataContext>();
-
+            
+            //Add Eureka Discovery
+            services.AddDiscoveryClient(Configuration);
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new Info {Title = "Box.Security", Version = "v1"});
@@ -46,6 +48,13 @@ namespace Box.Security
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
+            
+
+        }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,6 +81,8 @@ namespace Box.Security
            
             app.UseCors("LoginPolicy");
             app.UseMvcWithDefaultRoute();
+            app.UseDiscoveryClient();
+
         }
     }
 }
