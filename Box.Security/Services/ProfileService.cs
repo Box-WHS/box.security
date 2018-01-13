@@ -47,6 +47,7 @@ namespace Box.Security.Services
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.Email, dbUser.Email));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.GivenName, dbUser.FirstName));
             context.IssuedClaims.Add(new Claim(JwtClaimTypes.FamilyName, dbUser.LastName));
+            context.IssuedClaims.Add(new Claim(JwtClaimTypes.PreferredUserName, dbUser.UserName));
             
         }
 
