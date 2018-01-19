@@ -42,6 +42,7 @@ namespace Box.Security
             }));
 
             services.AddScoped<ICaptchaService, CaptchaService>();
+            services.AddScoped<IApiService, ApiService>();
             
             services.AddMvc()
                 .AddJsonOptions(options =>
