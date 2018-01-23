@@ -22,6 +22,8 @@ namespace Box.Security
             
             //Add Eureka Discovery
             services.AddDiscoveryClient(Configuration);
+            //Add EmailService
+            services.AddScoped<IEmailService, EmailService>();
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new Info {Title = "Box.Security", Version = "v1"});
