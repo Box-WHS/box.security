@@ -22,27 +22,26 @@ namespace Box.Security.Services
             BoxMailAddress = configuration["Email:EmailAddress"];
             SmtpPort = int.Parse(configuration["Email:SmtpPort"]);
         }
-        public void SendMail(string content, string destination)
+        public void SendMail(string content, string subject, string destination)
         {
-            throw new NotImplementedException();
+            SendMailAsync(content, subject, destination).GetAwaiter().GetResult();
         }
 
-        public async Task SendMailAsync(string content, string destination)
+        public async Task SendMailAsync(string content, string subject, string destination)
         {
             var mimeMessage = new MimeMessage();
-            mimeMessage.From.Add(new MailboxAddress("Box Authentifizierung", BoxMailAddress));
-            mimeMessage.To.Add(new MailboxAddress("David van Elk", destination));
-            mimeMessage.Subject = "TEST";
+            mimeMessage.From.Add(new MailboxAddress("Box WHS TestMail", BoxMailAddress));
+            mimeMessage.To.Add(new MailboxAddress("David van Elk", "david.vanelk96@gmail.com"));
+            mimeMessage.Subject = subject;
             mimeMessage.Body = new TextPart("plain")
             {
-                Text = "Hallo Welt!"
+                Text = content
             };
             using (var client = new SmtpClient())
             {
-                client.Connect(SmtpServer, SmtpPort, true);
-                client.Authenticate("box-whs", "BoxWhs2018!");
+                await client.ConnectAsync(SmtpServer, SmtpPort, true);
+                await client.AuthenticateAsync(SmtpCredentials.UserName, SmtpCredentials.Password);
                 await client.SendAsync(mimeMessage);
-                Console.WriteLine("Email sent");
                 await client.DisconnectAsync(true);
             }
         }

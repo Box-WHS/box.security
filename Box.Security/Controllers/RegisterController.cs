@@ -20,21 +20,18 @@ namespace Box.Security.Controllers
         public RegisterController(UserDataContext dataContext,
             IConfiguration config,
             ICaptchaService captchaService,
-            IApiService apiService,
-            IEmailService emailService)
+            IApiService apiService)
         {
             DataContext = dataContext;
             Configuration = config;
             CaptchaService = captchaService;
             ApiService = apiService;
-            EmailService = emailService;
         }
 
         private UserDataContext DataContext { get; }
         private IConfiguration Configuration { get; }
         private ICaptchaService CaptchaService { get; }
         private IApiService ApiService { get; }
-        private IEmailService EmailService { get; }
 
         /// <summary>
         ///     Registers a new user
@@ -44,7 +41,6 @@ namespace Box.Security.Controllers
         public async Task<IActionResult> RegisterUser([FromBody] UserData user)
         {
             CaptchaResponse captchaResponse;
-            await EmailService.SendMailAsync("blablabla", "david.vanelk96@gmail.com");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
