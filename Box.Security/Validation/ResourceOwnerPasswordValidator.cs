@@ -55,7 +55,7 @@ namespace Box.Security.Validation
                 context.Result = new GrantValidationResult(
                     subject: dbUser.Id,
                     authenticationMethod: "password",
-                    claims: await GetUserClaimsAsync(dbUser));
+                    claims: GetUserClaimsAsync(dbUser));
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Box.Security.Validation
             await DataContext.SaveChangesAsync();
         }
 
-        private async Task<IEnumerable<Claim>> GetUserClaimsAsync(User user)
+        private IEnumerable<Claim> GetUserClaimsAsync(User user)
         {
             var claims = new List<Claim>
             {

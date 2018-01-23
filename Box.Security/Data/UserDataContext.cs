@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Box.Security.Data.Types;
+using Box.Security.Services.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,7 @@ namespace Box.Security.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<VerificationData> Verifications { get; set; }
 
         public UserDataContext(IConfiguration configuration, DbContextOptions<UserDataContext> options)
         {
@@ -62,6 +64,12 @@ namespace Box.Security.Data
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(userRole => userRole.Id);
+
+            modelBuilder.Entity<VerificationData>()
+                .HasKey(v => v.Id);
+            modelBuilder.Entity<VerificationData>()
+                .HasOne(v => v.User)
+                .WithOne(u => u.VerificationData);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)

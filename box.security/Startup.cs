@@ -24,6 +24,8 @@ namespace Box.Security
             services.AddDiscoveryClient(Configuration);
             //Add EmailService
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IAccountVerificationService, AccountVerificationService>();
+
             services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new Info {Title = "Box.Security", Version = "v1"});

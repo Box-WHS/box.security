@@ -20,18 +20,21 @@ namespace Box.Security.Controllers
         public RegisterController(UserDataContext dataContext,
             IConfiguration config,
             ICaptchaService captchaService,
-            IApiService apiService)
+            IApiService apiService,
+            IAccountVerificationService accountVerificationService)
         {
             DataContext = dataContext;
             Configuration = config;
             CaptchaService = captchaService;
             ApiService = apiService;
+            AccountVerificationService = accountVerificationService;
         }
 
         private UserDataContext DataContext { get; }
         private IConfiguration Configuration { get; }
         private ICaptchaService CaptchaService { get; }
         private IApiService ApiService { get; }
+        private IAccountVerificationService AccountVerificationService { get; }
 
         /// <summary>
         ///     Registers a new user
@@ -67,8 +70,10 @@ namespace Box.Security.Controllers
 
             var __dbSaveTask = DataContext.SaveChangesAsync();
             var __apiUserTask = ApiService.AddUserAsync(Guid.Parse(dbUser.Id));
+            var __sendVerificationMailTask = AccountVerificationService.SendVerificationMailAsync(dbUser);
 
-            await __apiUserTask; //Do two slow tasks at the same time!
+            await __sendVerificationMailTask;               //Do two slow tasks at the same time!
+            await __apiUserTask;
             await __dbSaveTask;
 
             return Ok(dbUser);
