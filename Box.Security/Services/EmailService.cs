@@ -31,7 +31,7 @@ namespace Box.Security.Services
         {
             var mimeMessage = new MimeMessage();
             mimeMessage.From.Add(new MailboxAddress("Box WHS TestMail", BoxMailAddress));
-            mimeMessage.To.Add(new MailboxAddress("David van Elk", "david.vanelk96@gmail.com"));
+            mimeMessage.To.Add(new MailboxAddress("Box User", destination));
             mimeMessage.Subject = subject;
             mimeMessage.Body = new TextPart("plain")
             {

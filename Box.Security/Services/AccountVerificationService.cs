@@ -36,7 +36,7 @@ namespace Box.Security.Services
             var verificationData = new VerificationData
             {
                 User = user,
-                Dirt = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Id + Guid.NewGuid())) //Do some random stuff...
+                Dirt = Convert.ToBase64String(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())) //Do some random stuff...
             };
             await DataContext.Verifications.AddAsync(verificationData);
             await DataContext.SaveChangesAsync();
