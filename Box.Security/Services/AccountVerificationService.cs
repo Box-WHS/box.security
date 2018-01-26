@@ -16,15 +16,18 @@ namespace Box.Security.Services
         private UserDataContext DataContext { get; }
         private IEmailService EmailService { get; }
         private IConfiguration Configuration { get; }
+        private IApiService ApiService { get; }
 
         private readonly string ZUUL_PROXY;
         public AccountVerificationService(UserDataContext dataContext,
             IEmailService emailService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IApiService apiService)
         {
             DataContext = dataContext;
             EmailService = emailService;
             Configuration = configuration;
+            ApiService = apiService;
 
             ZUUL_PROXY = Configuration["ZuulProxy"];
         }
@@ -63,7 +66,11 @@ namespace Box.Security.Services
                     db.Id == id)
                 {
                     DataContext.Users.Update(db.User);
-                    await DataContext.SaveChangesAsync();
+                    var __saveDbTask = DataContext.SaveChangesAsync();
+                    var __addUserTask = ApiService.AddUserAsync(Guid.Parse(userId));   //POST User to API
+
+                    await __addUserTask;
+                    await __saveDbTask;
                     return true;
                 }
             }

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Box.Security.Data;
+﻿using Box.Security.Data;
 using Box.Security.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 
 namespace Box.Security.Controllers
 {
@@ -26,9 +23,8 @@ namespace Box.Security.Controllers
         public async Task<IActionResult> VerifyUserAsync([FromRoute]Guid id, string u, string d)
         {
             if (await VerificationService.VerifyUserAccountAsync(u, id, d))
-                return Ok();
-            else
-                return BadRequest("User could not be verified.");
+                return Ok("User verified");
+            return BadRequest("User could not be verified.");
         }
 
     }

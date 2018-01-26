@@ -68,13 +68,9 @@ namespace Box.Security.Controllers
                 UserName = user.UserName
             })).Entity;
 
-            var __dbSaveTask = DataContext.SaveChangesAsync();
-            var __apiUserTask = ApiService.AddUserAsync(Guid.Parse(dbUser.Id));
-            var __sendVerificationMailTask = AccountVerificationService.SendVerificationMailAsync(dbUser);
+            await DataContext.SaveChangesAsync();
+            await AccountVerificationService.SendVerificationMailAsync(dbUser);
 
-            await __sendVerificationMailTask;               //Do two slow tasks at the same time!
-            await __apiUserTask;
-            await __dbSaveTask;
 
             return Ok(dbUser);
         }

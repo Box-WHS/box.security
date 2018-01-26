@@ -33,21 +33,21 @@ namespace Box.Security.Validation
             {
                 context.Result.ErrorDescription = "The user does not exist.";
                 context.Result.IsError = true;
-                context.Result.Error = "User does not exist.";
+                context.Result.Error = "1";
                 return;
             }
             if (!dbUser.Enabled)
             {
                 context.Result.ErrorDescription = $"The user { dbUser.UserName } is not enabled.";
                 context.Result.IsError = true;
-                context.Result.Error = "User not enabled.";
+                context.Result.Error = "2";
             }
             else if (dbUser.AccessFailedCount == 5)
             {
                 dbUser.Enabled = false;
                 context.Result.IsError = true;
                 context.Result.ErrorDescription = $"The user { dbUser.UserName } has been disabled due to 5 invalid login attempts.";
-                context.Result.Error = "User disabled";
+                context.Result.Error = "3";
             }
             else if (dbUser.PasswordHash == context.Password.Sha256())
             {
